@@ -813,7 +813,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             $qdifficulty = adaptivequiz_get_difficulty_from_tags($tags);
             $qdifficultylogits = catalgo::convert_linear_to_logit($qdifficulty, $adaptivequiz->lowestlevel,
                 $adaptivequiz->highestlevel);
-            // Questions are correct if they have more than 50% of possible points
+            // Questions are correct if they have at least 50% of possible points
             $correct = ($quba->get_question_fraction($slot) >= 0.5);
             
             $numattempted++;
@@ -899,7 +899,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             $question = $quba->get_question($slot);
             $tags = core_tag_tag::get_item_tags_array('core_question', 'question', $question->id);
             $qdifficulty = adaptivequiz_get_difficulty_from_tags($tags);
-            // Questions are correct if they have more than 50% of possible points
+            // Questions are correct if they have at least 50% of possible points
             $correct = ($quba->get_question_fraction($slot) >= 0.5);
             
             $position = array_search($qdifficulty, $qdifficulties);

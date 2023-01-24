@@ -100,7 +100,7 @@ class quiz_analyser {
                 }
 
                 // Record the attempt score and the individual question result.
-                // Questions are correct if they have more than 50% of possible points
+                // Questions are correct if they have at least 50% of possible points
                 $correct = ($quba->get_question_fraction($slot) >= 0.5);
                 $answer = $quba->get_response_summary($slot);
                 $this->questions[$question->id]->add_result($attempt->uniqueid, $user, $score, $correct, $answer);

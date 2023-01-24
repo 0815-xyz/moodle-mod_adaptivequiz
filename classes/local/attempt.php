@@ -283,7 +283,7 @@ class attempt {
 
             // Provide the question-fetching process with limits based on our last question.
             
-            // Use method similar to the one in catalgo to deal gracefully with partially correct questions
+            // Deal gracefully with partially correct questions: Only questions with a fraction of at least 50% count as correct (analogously to catalgo)
             
             // If the last question was correct...
             if ($this->is_question_marked_correct($this->quba, $this->slot)) {
@@ -535,12 +535,11 @@ class attempt {
     }
 
     /**
-     * Added by Ulrike Pado, Hochschule fuer Technik Stuttgart
-     * This function returns a boolean to say whether the user answered the question correctly or incorrectly.
+     * This function returns a boolean to indicate whether the user answered the question correctly or incorrectly.
      * If the answer is partially correct (50% or more of the available points) it is seen as correct.
      * This method is parallel to question_was_marked_correct_by_id in catalgo.class
      *
-     * @param quesiton_usage_by_activity $quba an object loaded with the unique id of the attempt
+     * @param question_usage_by_activity $quba an object loaded with the unique id of the attempt
      * @param int $slotid the slot id of the question
      * @return boolean true if the question was answered at least 50% correct, false otherwise (incorrect or no answer), or null if there is no mark and fraction
      */
@@ -554,48 +553,47 @@ class attempt {
         // Retrieve the fraction (of correct answers) received.
         $fraction = $quba->get_question_fraction($slotid);
         
-        // get $mark if $fraction is null - this is sometimes the case for fully correct or fully incorrect answers
+        // get $mark and scale it by maximum mark if $fraction is null
         if (is_null($fraction)) {
-            $this->print_debug('is_question_marked_correct - fraction is null. Getting mark.');
+            $this->print_debug('question_was_marked_correct_by_id - fraction is null. Getting mark.');
             $mark = $quba->get_question_mark($slotid);
             
-            // fraction and mark are both null
-            if(is_null($mark)) {
-                //var_dump($this->debug);
-                //$this->debug = array();
+             // fraction and mark are both null    
+             if (is_null($mark)) {
+                return null;
+             }
+
+            //Also retrieve maximum mark for scaling of mark
+            $maxmark = $quba->get_question_max_mark($slotid);
+            if (is_null($maxmark)) {
                 return null;
             }
-            
-            // find out if answer is fully correct
-            if ((float) 0 < $mark) {
-                $this->print_debug('is_question_marked_correct - mark was '.$mark.' Returning correct');
-                //var_dump($this->debug);
-                //$this->debug = array();
+
+            $relmark = $mark/$maxmark;
+        
+            // Find out if answer is considered correct because at least 50% of the points were achieved
+            if ((float) 0.5 <= $relmark) { 
+                $this->print_debug('question_was_marked_correct_by_id - relative mark was '.$relmark.' Returning correct');
                 return true;
             }
-            // otherwise it must be fully incorrect
-            $this->print_debug('is_question_marked_correct - mark was '.$mark.' Returning incorrect');
-            //var_dump($this->debug);
-            //$this->debug = array();
+
+            // Else, answer is incorrect
+            $this->print_debug('question_was_marked_correct_by_id - relative mark was '.$relmark.' Returning incorrect');
             return false;
         }
         
-        // If a valid fraction is returned, how high is it?
-        $this->print_debug('is_question_marked_correct - Fraction returned is '.$fraction);
-        // Return true if the partially correct question should be marked correct.
-        // This means its fraction is 0.5 or higher
+        // Else: there was a valid fraction
+
+        $this->print_debug('question_was_marked_correct_by_id - Fraction returned is '.$fraction);
+        // The question is assumed to be answered correctly if its fraction is 
+        // 0.5 or higher
         if ( $fraction >= 0.5) {
-            $this->print_debug('is_question_marked_correct - mark is indeed correct');
-            //var_dump($this->debug);
-            //$this->debug = array();
+            $this->print_debug('question_was_marked_correct_by_id - mark is indeed correct');
             return true;
         }
         
-        $this->print_debug('is_question_marked_correct - mark is indeed incorrect');
-        //var_dump($this->debug);
-        //$this->debug = array();
+        $this->print_debug('question_was_marked_correct_by_id - mark is indeed incorrect');
         return false;
-        
     }
     
     /**
