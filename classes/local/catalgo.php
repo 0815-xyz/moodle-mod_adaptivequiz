@@ -372,27 +372,19 @@ class catalgo {
             
              // fraction and mark are both null    
              if (is_null($mark)) {
-            return null;
+                return null;
              }
 
             //Also retrieve maximum mark for scaling of mark
             $maxmark = $this->get_question_max_mark($this->quba, $slotid);
-            $relmark = $mark/$maxmark;
-        
-            // Find out if answer is considered correct because at least 50% of the points were achieved
-            if ((float) 0.5 <= $relmark) { 
-                $this->print_debug('question_was_marked_correct_by_id - relative mark was '.$relmark.' Returning correct');
-                return true;
-            }
 
-            // Else, answer is incorrect
-            $this->print_debug('question_was_marked_correct_by_id - relative mark was '.$relmark.' Returning incorrect');
-            return false;
+            // compute the value that $fraction should have
+            $fraction = $mark/$maxmark;
         }
         
-        // Else: there was a valid fraction
-
-        $this->print_debug('question_was_marked_correct_by_id - Fraction returned is '.$fraction);
+        // $fraction is now set
+        $this->print_debug('question_was_marked_correct_by_id - Fraction is '.$fraction);
+        
         // The question is assumed to be answered correctly if its fraction is 
         // 0.5 or higher
         if ( $fraction >= 0.5) {

@@ -569,22 +569,15 @@ class attempt {
                 return null;
             }
 
-            $relmark = $mark/$maxmark;
+            // compute the missing value for $fraction
+            $fraction = $mark/$maxmark;
         
-            // Find out if answer is considered correct because at least 50% of the points were achieved
-            if ((float) 0.5 <= $relmark) { 
-                $this->print_debug('question_was_marked_correct_by_id - relative mark was '.$relmark.' Returning correct');
-                return true;
-            }
-
-            // Else, answer is incorrect
-            $this->print_debug('question_was_marked_correct_by_id - relative mark was '.$relmark.' Returning incorrect');
-            return false;
         }
         
-        // Else: there was a valid fraction
+        // $fraction is now definitely set
 
         $this->print_debug('question_was_marked_correct_by_id - Fraction returned is '.$fraction);
+
         // The question is assumed to be answered correctly if its fraction is 
         // 0.5 or higher
         if ( $fraction >= 0.5) {
